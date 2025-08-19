@@ -96,7 +96,12 @@
 
 ## **D. Review Criteria**
 
-### **D1. Core Functionality**
+### **D1. Database & System Design**
+- [ ] Schema with correct relations & constraints.  
+- [ ] Indexes on `users(email)`, `tasks(status, project_id)`.  
+- [ ] ER diagram + system design diagram included.  
+
+### **D2. Core Functionality**
 - [ ] JWT auth with role-based permissions.  
 - [ ] CRUD for Projects and Tasks with proper rules.  
 - [ ] Status workflow enforced (`todo → in-progress → done`).  
@@ -104,25 +109,18 @@
 - [ ] Notifications created on assign/status/comment.  
 - [ ] Basic reporting endpoints working.  
 
-### **D2. Code Quality**
+### **D3. Code Quality**
 - [ ] Clean project structure (`routers/`, `schemas/`, `services/`, `repos/`).  
 - [ ] Centralized error handling & logging.  
 - [ ] Configurable via `.env`.  
 - [ ] Auto API docs (Swagger UI).  
 
-### **D3. Database & System Design**
-- [ ] Schema with correct relations & constraints.  
-- [ ] Indexes on `users(email)`, `tasks(status, project_id)`.  
-- [ ] ER diagram + system design diagram included.  
-- [ ] Redis used for caching hot task queries.  
-
-### **D4. Testing**
+### **D4. Testing & Deployment**
 - [ ] Auth & task workflow tested.  
 - [ ] Role permissions tested.  
 - [ ] Notifications tested.  
 - [ ] Coverage ≥ 70%.  
 
-### **D5. Deployment**
-- [ ] `docker-compose up` runs app + PostgreSQL + Redis.  
-- [ ] Seed script with sample org, users, project, tasks.  
+### **D5. Documentation**
 - [ ] README with curl examples and setup guide.  
+- [ ] API documentation (Swagger UI).  
