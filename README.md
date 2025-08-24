@@ -6,7 +6,7 @@
 ## **A. Instructions**
 - Candidate must fork this repository to a public repo under their name for submission. Notify email `hr@riverflow.solutions` when done.
 - Build a **multi-organization Task Management backend** (organizations → projects → tasks) with basic collaboration and notifications.  
-- **Stack**: Python, FastAPI, PostgreSQL, Redis.  
+- **Stack**: Python, FastAPI, PostgreSQL, Redis, Nginx.
 - Use Justfile for all run and development commands.
 - Use Docker for deployment.
 - Deliverables: GitHub repo, ER + System design diagrams, Dockerized deployment, README. 
@@ -90,7 +90,7 @@
 - **Cache/Notify**: Redis for caching task lists and storing notifications.  
 - **Auth**: JWT (PyJWT) + role-based access (Admin/Manager/Member).  
 - **Testing**: pytest with mock PostgreSQL & Redis.  
-- **Deployment**: Docker + docker-compose (FastAPI + PostgreSQL + Redis).  
+- **Deployment**: Docker + docker-compose (FastAPI + PostgreSQL + Redis + Nginx).  
 
 ---
 
@@ -110,17 +110,16 @@
 - [ ] Basic reporting endpoints working.  
 
 ### **D3. Code Quality**
-- [ ] Clean project structure (`routers/`, `schemas/`, `services/`, `repos/`).  
 - [ ] Centralized error handling & logging.  
 - [ ] Configurable via `.env`.  
-- [ ] Auto API docs (Swagger UI).  
 
-### **D4. Testing & Deployment**
-- [ ] Auth & task workflow tested.  
-- [ ] Role permissions tested.  
-- [ ] Notifications tested.  
+### **D4. Testing
 - [ ] Coverage ≥ 70%.  
 
-### **D5. Documentation**
-- [ ] README with curl examples and setup guide.  
-- [ ] API documentation (Swagger UI).  
+### **D5. Deployment**
+- [ ] Nginx configuration.  
+- [ ] Dockerized deployment (Include Nginx)
+
+### **D6. Documentation**
+- [ ] README with setup guide.  
+- [ ] API documentation (Swagger UI).
