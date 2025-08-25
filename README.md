@@ -4,7 +4,12 @@
 - We only use the submissions for candidates evaluation.
 
 ## **A. Instructions**
-- Candidate must fork this repository to a public repo under their name for submission. Notify email `hr@riverflow.solutions` when done.
+- Submission:
+  - Candidate must fork this repository to a private repo under their name for submission. Notify email `hr@riverflow.solutions` when done.
+  - Candidate must add the following accounts as collaborators so our team can review your submission:
+    - `phunv-abx`
+    - `hle-abx`
+
 - Build a **multi-organization Task Management backend** (organizations → projects → tasks) with basic collaboration and notifications.  
 - **Stack**: Python, FastAPI, PostgreSQL, Redis, Nginx.
 - Use Justfile for all run and development commands.
