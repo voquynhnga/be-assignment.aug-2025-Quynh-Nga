@@ -113,7 +113,7 @@
 - [ ] Centralized error handling & logging.  
 - [ ] Configurable via `.env`.  
 
-### **D4. Testing
+### **D4. Testing**
 - [ ] Coverage ≥ 70%.  
 
 ### **D5. Deployment**
