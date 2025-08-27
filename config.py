@@ -4,7 +4,7 @@ from typing import Optional
 
 class Settings(BaseSettings):
     # Database
-    database_url: str = "postgresql://postgres:password@localhost:5432/task_management"
+    database_url: str = "postgresql://taskapp:taskapp123@localhost:5432/taskdb"
     
     # Redis
     redis_url: str = "redis://localhost:6379"
@@ -27,5 +27,8 @@ class Settings(BaseSettings):
         env_file = ".env"
         case_sensitive = False
 
+
+def get_settings():
+    return Settings()
 
 settings = Settings()

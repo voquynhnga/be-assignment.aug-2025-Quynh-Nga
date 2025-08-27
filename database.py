@@ -1,7 +1,9 @@
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
-from app.config import settings
+from config import settings
+from app.models import BaseModel
+
 
 # Create database engine
 engine = create_engine(settings.database_url)
@@ -20,3 +22,12 @@ def get_db():
         yield db
     finally:
         db.close()
+def create_tables():
+    """Create all database tables"""
+    BaseModel.metadata.create_all(bind=engine)
+    print("Database tables created successfully")
+
+def drop_tables():
+    """Drop all database tables"""
+    BaseModel.metadata.drop_all(bind=engine)
+    print("Database tables dropped")
