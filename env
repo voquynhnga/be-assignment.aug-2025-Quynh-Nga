@@ -1,0 +1,32 @@
+# Database Configuration
+DB_HOST=localhost
+DB_PORT=5432
+DB_USER=taskapp
+DB_PASSWORD=taskapp123
+DB_NAME=taskdb
+
+# Redis Configuration
+REDIS_HOST=localhost
+REDIS_PORT=6379
+REDIS_PASSWORD=redis123
+
+# JWT Configuration
+JWT_SECRET_KEY=your-super-secret-jwt-key-change-in-production
+JWT_ALGORITHM=HS256
+JWT_EXPIRE_MINUTES=30
+
+# Application Configuration
+ENVIRONMENT=development
+DEBUG=True
+LOG_LEVEL=INFO
+
+# File Upload Configuration
+UPLOAD_DIR=./uploads
+MAX_FILE_SIZE=5242880  # 5MB in bytes
+ALLOWED_EXTENSIONS=pdf,doc,docx,txt,jpg,jpeg,png
+
+# Email Configuration (for notifications)
+SMTP_SERVER=smtp.gmail.com
+SMTP_PORT=587
+SMTP_USERNAME=your-email@gmail.com
+SMTP_PASSWORD=your-app-password
