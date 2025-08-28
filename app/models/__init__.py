@@ -1,5 +1,5 @@
 from .base import BaseModel
-from .user import User, Organization, UserRole
+from .user import User, Organization, UserRole, Gender
 from .project import Project, project_members
 from .task import Task, TaskComment, TaskAttachment, TaskStatus, TaskPriority
 from .notification import Notification, NotificationType
@@ -10,6 +10,7 @@ __all__ = [
     "User", 
     "Organization", 
     "UserRole",
+    "Gender",
     "Project", 
     "project_members",
     "Task", 

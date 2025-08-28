@@ -1,7 +1,5 @@
 from sqlalchemy import Column, Integer, String, ForeignKey, Enum, Boolean
 from sqlalchemy.orm import relationship
-from sqlalchemy.dialects.postgresql import UUID
-import uuid
 import enum
 
 from .base import BaseModel
@@ -10,6 +8,10 @@ class UserRole(str, enum.Enum):
     ADMIN = "admin"
     MANAGER = "manager"
     MEMBER = "member"
+
+class Gender(str, enum.Enum):
+    MALE = "male"
+    FEMALE = "female"
 
 class Organization(BaseModel):
     __tablename__ = "organizations"
@@ -27,7 +29,7 @@ class User(BaseModel):
     email = Column(String(255), unique=True, nullable=False, index=True)
     hash_password = Column(String(255), nullable=False)
     full_name = Column(String(255))
-    gender = Column(Boolean, default=True, nullable=False)  # True for male
+    gender = Column(Enum(Gender), default=Gender.MALE, nullable=False)  
     role = Column(Enum(UserRole), default=UserRole.MEMBER, nullable=False)
     is_active = Column(Boolean, default=True, nullable=False)
     

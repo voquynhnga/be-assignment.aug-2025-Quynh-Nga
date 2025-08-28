@@ -22,7 +22,7 @@ class Task(BaseModel):
     title = Column(String(255), nullable=False)
     description = Column(Text)
     status = Column(Enum(TaskStatus), default=TaskStatus.TODO, nullable=False, index=True)
-    priority = Column(Enum(TaskPriority), default=TaskPriority.MEDIUM, nullable=False)
+    priority = Column(Enum(TaskPriority), default=TaskPriority.LOW, nullable=False)
     due_date = Column(Date)
     
     # Foreign Keys
