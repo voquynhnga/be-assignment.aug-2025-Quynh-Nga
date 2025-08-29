@@ -3,20 +3,21 @@ fastapi==0.104.1
 uvicorn[standard]==0.24.0
 
 # Database
-sqlalchemy==2.0.23
+sqlalchemy==2.0.22
 alembic==1.12.1
-psycopg2-binary==2.9.8
+psycopg2-binary==2.9.10  # Windows: dùng bản prebuilt
 
 # Redis
 redis==5.0.1
 
 # Authentication & Security
-python-jose[cryptography]==3.3.0
-passlib[bcrypt]==1.7.4
+python-jose==3.3.0  # Windows: bản pip chuẩn
+passlib[bcrypt]==1.7.4  # Windows: pip chuẩn
 python-multipart==0.0.6
 
 # Configuration & Environment
-pydantic==2.4.2
+pydantic>=2.4,<3
+pydantic-core>=2.4,<3
 pydantic-settings==2.0.3
 python-dotenv==1.0.0
 
@@ -28,3 +29,5 @@ httpx==0.25.2
 
 # Utilities
 email-validator==2.1.0
+
+jwt==1.4.0

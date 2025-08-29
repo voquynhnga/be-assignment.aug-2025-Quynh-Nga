@@ -10,7 +10,7 @@ class Settings(BaseSettings):
     redis_url: str = "redis://localhost:6379"
     
     # JWT
-    secret_key: str = "your-super-secret-key-here-change-in-production"
+    secret_key: str = "changeme"
     algorithm: str = "HS256"
     access_token_expire_minutes: int = 30
     
@@ -26,6 +26,7 @@ class Settings(BaseSettings):
     class Config:
         env_file = ".env"
         case_sensitive = False
+        extra = "allow"
 
 
 def get_settings():
