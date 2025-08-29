@@ -6,14 +6,20 @@ from typing import List, Optional
 
 # Dưới đây là schema bạn đang hỏi đến
 class OrganizationOut(BaseModel):
-    """
-    Schema này được dùng để trả về thông tin của một Organization.
-    Nó chỉ bao gồm những trường mà chúng ta muốn client thấy.
-    """
     id: UUID
     name: str
 
-    # Cấu hình quan trọng để Pydantic có thể đọc dữ liệu
-    # từ một đối tượng model của SQLAlchemy
-    class Config:
-        orm_mode = True
+  
+
+class ProjectOut(BaseModel):
+    id: UUID
+    name: str
+    description: str
+
+
+
+class ProjectCreate(BaseModel):
+    name: str
+    description: Optional[str] = None 
+
+  

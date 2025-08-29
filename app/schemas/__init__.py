@@ -1,5 +1,7 @@
-from .schemas import OrganizationOut
+from .schemas import OrganizationOut, ProjectOut, ProjectCreate
 
 __all__ = [
-    "OrganizationOut"
+    "OrganizationOut",
+    "ProjectOut",
+    "ProjectCreate"
 ]

@@ -1,13 +1,16 @@
-# app/deps.py
 from fastapi import Depends, HTTPException, status
-from fastapi.security import OAuth2PasswordBearer
+from fastapi.security import HTTPBearer
+from fastapi.security import HTTPAuthorizationCredentials
+
 from sqlalchemy.orm import Session
 
 from app.core.security import decode_token
 from app.models import User
-from database import SessionLocal  # giả sử bạn có factory session
+from database import SessionLocal 
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")  # url login
+
+bearer_scheme = HTTPBearer()
+
 
 def get_db():
     db = SessionLocal()
@@ -16,8 +19,9 @@ def get_db():
     finally:
         db.close()
 
-def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(get_db)):
-    from app.core.security import decode_token
+
+def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(bearer_scheme), db: Session = Depends(get_db)):
+    token = credentials.credentials
     try:
         payload = decode_token(token)
     except ValueError as e:
@@ -33,6 +37,7 @@ def get_current_user(token: str = Depends(oauth2_scheme), db: Session = Depends(
     if not user.is_active:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Inactive user")
     return user
+
 
 def require_roles(*allowed_roles: str):
     def role_checker(user: User = Depends(get_current_user)):

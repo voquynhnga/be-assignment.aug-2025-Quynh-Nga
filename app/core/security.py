@@ -1,15 +1,19 @@
 import os
 from datetime import datetime, timedelta, timezone
 from typing import Optional, Dict, Any
+from dotenv import load_dotenv
+
 
 import jwt as pyjwt
 from passlib.context import CryptContext
 
+load_dotenv()
+
 # Config (tốt nhất lấy từ env)
-JWT_SECRET = os.getenv("JWT_SECRET", "change_this_to_strong_secret")
-JWT_ALGORITHM = os.getenv("JWT_ALGORITHM", "HS256")
-ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "15"))
-REFRESH_TOKEN_EXPIRE_DAYS = int(os.getenv("REFRESH_TOKEN_EXPIRE_DAYS", "30"))
+JWT_SECRET = os.getenv("JWT_SECRET")
+JWT_ALGORITHM = os.getenv("JWT_ALGORITHM")
+ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES"))
+REFRESH_TOKEN_EXPIRE_DAYS = int(os.getenv("REFRESH_TOKEN_EXPIRE_DAYS"))
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 

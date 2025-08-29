@@ -19,8 +19,7 @@ class OrganizationOut(BaseModel):
     id: UUID
     name: str
 
-    class Config:
-        orm_mode = True
+
 
 class RegisterIn(BaseModel):
     email: EmailStr
@@ -32,20 +31,28 @@ class RegisterIn(BaseModel):
 
 
 class TokenOut(BaseModel):
+    message: Optional[str] = "Success"
     access_token: str
     token_type: str = "bearer"
     refresh_token: str
+
+ 
 
 class LoginIn(BaseModel):
     email: EmailStr
     password: str
 
-@router.post("/register", response_model=dict)
+class RefreshIn(BaseModel):
+    refresh_token: str
+
+@router.post("/register", response_model=TokenOut)
 def register(payload: RegisterIn, db: Session = Depends(get_db)):
+    # check if email already exists
     existing = db.query(User).filter(User.email == payload.email).first()
     if existing:
         raise HTTPException(status_code=400, detail="Email already registered")
     
+    #check organization exists
     organization = db.query(Organization).filter(Organization.id == payload.organization_id).first()
     if not organization:
         raise HTTPException(
@@ -64,7 +71,21 @@ def register(payload: RegisterIn, db: Session = Depends(get_db)):
     db.add(user)
     db.commit()
     db.refresh(user)
-    return {"message": "Register successfully"}
+
+    # create tokens to not require login after register
+    access = create_access_token(subject=str(user.id), data={"role": user.role})
+    refresh = create_refresh_token(subject=str(user.id))
+    expires_at = datetime.now(timezone.utc) + timedelta(days=REFRESH_TOKEN_EXPIRE_DAYS)
+    db_token = RefreshToken(token=refresh, user_id=user.id, expires_at=expires_at)
+    db.add(db_token)
+    db.commit()
+
+
+    return TokenOut(
+        message="Register successfully",
+        access_token=access, 
+        refresh_token=refresh,
+        token_type="bearer")
 
 @router.post("/login", response_model=TokenOut)
 def login(payload: LoginIn, db: Session = Depends(get_db)):
@@ -80,11 +101,13 @@ def login(payload: LoginIn, db: Session = Depends(get_db)):
     db.add(db_token)
     db.commit()
 
-    return TokenOut(access_token=access, refresh_token=refresh)
+    return TokenOut(
+        message="Login successfully",
+        access_token=access, 
+        refresh_token=refresh,
+        token_type="bearer")
 
-from pydantic import BaseModel
-class RefreshIn(BaseModel):
-    refresh_token: str
+
 
 @router.post("/refresh", response_model=TokenOut)
 def refresh_token(payload: RefreshIn, db: Session = Depends(get_db)):
