@@ -2,8 +2,9 @@ from datetime import datetime, timedelta, timezone
 from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException, status
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, constr
 from sqlalchemy.orm import Session
+import re
 
 from app.dependencies import get_db
 from app.models import User, RefreshToken, Organization
@@ -23,11 +24,12 @@ class OrganizationOut(BaseModel):
 
 class RegisterIn(BaseModel):
     email: EmailStr
-    password: str
-    full_name: str
+    password: constr(min_length=6, max_length=32, pattern="^[A-Za-z0-9@#$%^&+=]*$")
+    full_name: constr(min_length=5, max_length=255)
     gender: Optional[str] = 'male' 
-    role: Optional[str] = 'member' 
-    organization_id: UUID
+    organization_id: Optional[UUID]
+
+
 
 class TokenOut(BaseModel):
     access_token: str
@@ -55,14 +57,14 @@ def register(payload: RegisterIn, db: Session = Depends(get_db)):
         hash_password=hash_password(payload.password),
         full_name=payload.full_name,
         gender=payload.gender,
-        role=payload.role,
+        role='member',
         is_active=True,
         organization_id=payload.organization_id
     )
     db.add(user)
     db.commit()
     db.refresh(user)
-    return {"id": str(user.id), "email": user.email}
+    return {"message": "Register successfully"}
 
 @router.post("/login", response_model=TokenOut)
 def login(payload: LoginIn, db: Session = Depends(get_db)):

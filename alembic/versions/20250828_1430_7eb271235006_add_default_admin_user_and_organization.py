@@ -9,13 +9,16 @@ from typing import Sequence, Union
 
 from alembic import op
 import sqlalchemy as sa
-
+import os
+from passlib.hash import bcrypt
 
 # revision identifiers, used by Alembic.
 revision: str = '7eb271235006'
 down_revision: Union[str, Sequence[str], None] = '23332a6bd36d'
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
+
+
 
 
 # alembic/versions/xxx_add_default_admin_user_and_organization.py
@@ -32,7 +35,7 @@ def upgrade() -> None:
         INSERT INTO users (email, hash_password, full_name, gender, role, is_active, organization_id, created_at, updated_at)
         VALUES (
             'admin@taskapp.com', 
-            '$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LeZR8RiIYXqRNHXh6', 
+            '$2y$10$o6Eku87pwF73Gt1QG5C.huVcjIRoiWtlBPKno7Gmnsijw.IY5xpdq', 
             'System Administrator 1', 
             'male',
             'admin', 
@@ -44,5 +47,8 @@ def upgrade() -> None:
     """)
 
 def downgrade() -> None:
-    op.execute("DELETE FROM users WHERE email = 'admin@taskapp.com';")
-    op.execute("DELETE FROM organizations WHERE name = 'Default Organization';")
+  op.execute("""
+        DELETE FROM users 
+        WHERE organization_id = (SELECT id FROM organizations WHERE name = 'Default Organization');
+    """)
+  op.execute("DELETE FROM organizations WHERE name = 'Default Organization';")

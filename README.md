@@ -16,9 +16,6 @@ python -m pip install --upgrade pip setuptools wheel
 pip install --upgrade --force-reinstall --only-binary :all: -r requirements.txt
 
 
-Start the FastAPI server (for development with auto-reload):
-
-uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 
 
 B3: Start Docker
@@ -27,6 +24,11 @@ docker-compose up
 B4: Run database migrations 
 # Run once
 alembic upgrade head
+
+
+Start the FastAPI server (for development with auto-reload):
+
+uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 
 B5: Open Swagger UI
 http://localhost:8000/docs
