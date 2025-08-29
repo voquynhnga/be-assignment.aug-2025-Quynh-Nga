@@ -52,7 +52,7 @@ def upgrade() -> None:
         sa.Column('gender', sa.Enum('male', 'female', name='gender'), nullable=False),
         sa.Column('role', sa.Enum('admin','manager', 'member', name='userrole'), nullable=False),
         sa.Column('is_active', sa.Boolean(), server_default=sa.text('true'),  nullable=False),
-        sa.Column('organization_id', postgresql.UUID(as_uuid=True), nullable=False),
+        sa.Column('organization_id', postgresql.UUID(as_uuid=True), nullable=True),
         sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
         sa.Column('updated_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
         sa.ForeignKeyConstraint(['organization_id'], ['organizations.id']),

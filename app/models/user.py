@@ -1,8 +1,13 @@
-from sqlalchemy import Column, Integer, String, ForeignKey, Enum, Boolean
+from sqlalchemy import Column, Integer, String, ForeignKey, Enum, Boolean, DateTime, Text
 from sqlalchemy.orm import relationship
 import enum
 
+from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.orm import relationship
+from sqlalchemy.ext.declarative import declarative_base
+
 from .base import BaseModel
+
 
 class UserRole(str, enum.Enum):
     ADMIN = "admin"
@@ -29,8 +34,17 @@ class User(BaseModel):
     email = Column(String(255), unique=True, nullable=False, index=True)
     hash_password = Column(String(255), nullable=False)
     full_name = Column(String(255))
-    gender = Column(Enum(Gender), default=Gender.MALE, nullable=False)  
-    role = Column(Enum(UserRole), default=UserRole.MEMBER, nullable=False)
+    gender = Column(
+    Enum(Gender, name="gender", values_callable=lambda obj: [e.value for e in obj]),
+    default=Gender.MALE.value,
+    nullable=False,
+    )
+    role = Column(
+    Enum(UserRole, name="userrole", values_callable=lambda obj: [e.value for e in obj]),
+    default=UserRole.MEMBER.value,
+    nullable=False,
+    )
+
     is_active = Column(Boolean, default=True, nullable=False)
     
     # Foreign Keys
@@ -43,6 +57,13 @@ class User(BaseModel):
     comments = relationship("TaskComment", back_populates="user")
     attachments = relationship("TaskAttachment", back_populates="uploaded_by_user")
     notifications = relationship("Notification", back_populates="user")
+
+class RefreshToken(BaseModel):
+    __tablename__ = "refresh_tokens"
+    token = Column(Text, nullable=False, unique=True, index=True)
+    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
+    expires_at = Column(DateTime(timezone=True), nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default="now()", nullable=False)
     
     def __str__(self):
         return f"<User: {self.email}>"
