@@ -9,7 +9,10 @@ project_members = Table(
     BaseModel.metadata,
     Column('project_id', Integer, ForeignKey('projects.id'), primary_key=True),
     Column('user_id', Integer, ForeignKey('users.id'), primary_key=True)
+
 )
+
+
 
 class Project(BaseModel):
     __tablename__ = "projects"
