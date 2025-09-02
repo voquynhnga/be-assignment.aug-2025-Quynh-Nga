@@ -1,16 +1,17 @@
 from pydantic import BaseModel
 from uuid import UUID
-from typing import List, Optional
+from typing import List, Optional, Literal
 from pydantic import EmailStr, constr
+from datetime import datetime
+
 
 
 #Authentication
 class RegisterIn(BaseModel):
     email: EmailStr
-    password: constr(min_length=6, max_length=32, pattern="^[A-Za-z0-9@#$%^&+=]*$")
+    password: constr(min_length=6, max_length=32, pattern="^[A-Z][a-z][0-9]@#$%^&+=*$")
     full_name: constr(min_length=5, max_length=255)
-    gender: Optional[str] =  'male'
-
+    gender: Literal['male','female']  
     # if join existing org
     organization_id: Optional[UUID] = None  
 
@@ -20,54 +21,45 @@ class RegisterIn(BaseModel):
 
 
 class TokenOut(BaseModel):
-    message: Optional[str] = "Success"
+    message: str = "Success"
     access_token: str
     token_type: str = "bearer"
     refresh_token: str
 
 class LoginIn(BaseModel):
     email: EmailStr
-    password: str
+    password: constr(min_length=6, max_length=32, pattern="^[A-Z][a-z][0-9]@#$%^&+=*$")
 
 class RefreshIn(BaseModel):
     refresh_token: str
 
 #User
 class UserOut(BaseModel):
-    id: UUID
     email: EmailStr
     full_name: str
-    role: str
+    role: Literal['member','manager','admin']  
     class Config:
         orm_mode = True
 
 #organization
 class OrganizationOut(BaseModel):
-    id: UUID
     name: str
-    description: str
-    class Config:
-        orm_mode = True
-
-class OrganizationUpdate(BaseModel):
-    name: str
-    description: str
+    description: Optional[str] = None
     class Config:
         orm_mode = True
 
 class UserCreateByAdmin(BaseModel):
     email: EmailStr
-    password: constr(min_length=6, max_length=32, pattern="^[A-Za-z0-9@#$%^&+=]*$")
+    password: constr(min_length=6, max_length=32, pattern="^[A-Z][a-z][0-9]@#$%^&+=*$")
     full_name: constr(min_length=5, max_length=255)
-    gender: Optional[str] = 'male'
-    role: Optional[str] = "member"  
+    gender: Literal['male','female']
+    role: Literal['member','manager','admin']  
 
 
 #project
 class ProjectOut(BaseModel):
-    id: UUID
     name: str
-    description: str
+    description: Optional[str] = None
     members: List[UserOut]
 
     class Config:
@@ -75,17 +67,53 @@ class ProjectOut(BaseModel):
 
 class ProjectCreate(BaseModel):
     name: str
-    description: Optional[str] = None 
+    description: Optional[str] = None
 
 class ProjectMemberIn(BaseModel):
-    user_id: int
+    user_id: UUID
 
 class ProjectMemberOut(BaseModel):
-    id: int
-    user_id: int
-    project_id: int
+    user_id:  UUID
+    project_id:  UUID
 
     class Config:
         orm_mode = True
+
+#task
+class TaskBase(BaseModel):
+    title: str
+    description: Optional[str] = None
+    priority: Literal["low", "medium", "high"]
+    due_date: datetime
+
+class TaskCreate(TaskBase):
+    assignee_id: UUID
+
+class TaskUpdate(BaseModel):
+    title: str
+    description: Optional[str] = None
+    status: Literal["todo", "in-progress", "done"]
+    priority: Literal["low", "medium", "high"]
+    due_date: datetime
+    assignee_id: UUID
+
+class TaskOut(TaskBase):
+    status: Literal["todo", "in-progress", "done"]
+    assignee_id: UUID
+
+
+    class Config:
+        orm_mode = True
+
+
+#notification
+class NotificationOut(BaseModel):
+    type: Literal['task_assigned','task_status_changed','task_comment_added','task_due_soon','task_overdue']
+    title: str
+    message: str
+    is_read: Literal[False, True]
+    user_id:  UUID
+    task_id:  UUID
+
 
   
