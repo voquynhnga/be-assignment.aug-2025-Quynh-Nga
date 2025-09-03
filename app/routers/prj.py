@@ -3,10 +3,12 @@ from sqlalchemy.orm import Session
 from typing import List
 from uuid import UUID
 
-from app.models import Project, User
-from app.schemas import ProjectOut, ProjectCreate
+from app.models import Project, User, Task
+from app.schemas import ProjectOut, ProjectCreate, TaskOut
 from database import get_db
 from app.dependencies import get_current_user
+from sqlalchemy import func
+import datetime
 
 router = APIRouter(
     prefix="/projects",
@@ -200,3 +202,30 @@ def remove_member(
     project.members.remove(user)
     db.commit()
     return {"message": "Member removed successfully"}
+
+#Count of tasks by status in a project
+@router.get("/{project_id}/report/status")
+def task_status_report(project_id: UUID, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    project = db.query(Project).filter(Project.id == project_id).first()
+    if not project or current_user not in project.members:
+        raise HTTPException(status_code=403, detail="Not authorized")
+
+    result = (
+        db.query(Task.status, func.count(Task.id))
+        .filter(Task.project_id == project_id)
+        .group_by(Task.status)
+        .all()
+    )
+    return {status: count for status, count in result}
+
+#List of overdue tasks in a project
+@router.get("/{project_id}/report/overdue", response_model=List[TaskOut])
+def overdue_tasks(project_id: UUID, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    now = datetime.utcnow()
+    tasks = (
+        db.query(Task)
+        .filter(Task.project_id == project_id, Task.due_date < now, Task.status != "done")
+        .all()
+    )
+    return tasks
+
