@@ -13,7 +13,7 @@ from app.core.security import (
 )
 from app.schemas import TokenOut, RegisterIn, LoginIn, RefreshIn
 
-router = APIRouter(prefix="/auth", tags=["auth"])
+router = APIRouter(prefix="/auth", tags=["Authentication"])
 
 
 @router.post("/register", response_model=TokenOut)

@@ -14,7 +14,11 @@ class NotificationType(str, enum.Enum):
 class Notification(BaseModel):
     __tablename__ = "notifications"
     
-    type = Column(Enum(NotificationType), nullable=False)
+    type = Column(
+        Enum(NotificationType, name="notificationtype", values_callable=lambda obj: [e.value for e in obj]),
+        default=NotificationType.TASK_ASSIGNED.value,
+        nullable=False,
+        )
     title = Column(String(255), nullable=False)
     message = Column(Text, nullable=False)
     is_read = Column(Boolean, default=False, nullable=False)

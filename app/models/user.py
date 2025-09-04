@@ -4,8 +4,6 @@ import enum
 
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
-from sqlalchemy.ext.declarative import declarative_base
-
 from .base import BaseModel
 
 
@@ -18,15 +16,6 @@ class Gender(str, enum.Enum):
     MALE = "male"
     FEMALE = "female"
 
-class Organization(BaseModel):
-    __tablename__ = "organizations"
-    
-    name = Column(String(255), nullable=False)
-    description = Column(String(500))
-    
-    # Relationships
-    users = relationship("User", back_populates="organization", cascade="all, delete-orphan")
-    projects = relationship("Project", back_populates="organization", cascade="all, delete-orphan")
 
 class User(BaseModel):
     __tablename__ = "users"

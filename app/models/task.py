@@ -27,11 +27,15 @@ class Task(BaseModel):
         default=TaskStatus.TODO.value,
         nullable=False,
         )
-    priority = Column(Enum(TaskPriority), default=TaskPriority.LOW, nullable=False)
+    priority = Column(
+                Enum(TaskPriority, name="taskpriority", values_callable=lambda obj: [e.value for e in obj]),
+        default=TaskPriority.LOW.value,
+        nullable=False,
+        )
     due_date = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False)
     # Foreign Keys
     project_id = Column(Integer, ForeignKey("projects.id"), nullable=False, index=True)
-    assignee_id = Column(Integer, ForeignKey("users.id"), nullable=True)
+    assignee_id = Column(Integer, ForeignKey("users.id"), nullable=False)
     created_by = Column(Integer, ForeignKey("users.id"), nullable=False)
     
     # Relationships

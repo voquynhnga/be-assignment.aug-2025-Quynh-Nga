@@ -9,7 +9,7 @@ from datetime import datetime
 #Authentication
 class RegisterIn(BaseModel):
     email: EmailStr
-    password: constr(min_length=6, max_length=32, pattern="^[A-Z][a-z][0-9]@#$%^&+=*$")
+    password: constr(min_length=6, max_length=32, pattern=r"^[A-Za-z0-9@#$%^&+=*]{6,32}$")
     full_name: constr(min_length=5, max_length=255)
     gender: Literal['male','female']  
     # if join existing org
@@ -28,18 +28,34 @@ class TokenOut(BaseModel):
 
 class LoginIn(BaseModel):
     email: EmailStr
-    password: constr(min_length=6, max_length=32, pattern="^[A-Z][a-z][0-9]@#$%^&+=*$")
+    password: constr(min_length=6, max_length=32, pattern=r"^[A-Za-z0-9@#$%^&+=*]{6,32}$")
 
 class RefreshIn(BaseModel):
     refresh_token: str
 
+
+
 #User
 class UserOut(BaseModel):
+    id: UUID
     email: EmailStr
     full_name: str
     role: Literal['member','manager','admin']  
     class Config:
         orm_mode = True
+
+class UserUpdate(BaseModel):
+    full_name: Optional[str] = None
+    gender: Optional[Literal['male','female']] = None
+    password: Optional[constr(min_length=6, max_length=32, pattern=r"^[A-Za-z0-9@#$%^&+=*]{6,32}$")]=None
+    organization_id: Optional[UUID] = None 
+
+class UserCreateByAdmin(BaseModel):
+    email: EmailStr
+    password: constr(min_length=6, max_length=32, pattern=r"^[A-Za-z0-9@#$%^&+=*]{6,32}$")
+    full_name: constr(min_length=5, max_length=255)
+    gender: Literal['male','female']
+    role: Literal['member','manager','admin']  
 
 #organization
 class OrganizationOut(BaseModel):
@@ -48,12 +64,9 @@ class OrganizationOut(BaseModel):
     class Config:
         orm_mode = True
 
-class UserCreateByAdmin(BaseModel):
-    email: EmailStr
-    password: constr(min_length=6, max_length=32, pattern="^[A-Z][a-z][0-9]@#$%^&+=*$")
-    full_name: constr(min_length=5, max_length=255)
-    gender: Literal['male','female']
-    role: Literal['member','manager','admin']  
+class OrganizationUpdate(BaseModel):
+    name: Optional[str] = None  
+    description: Optional[str] = None
 
 
 #project
@@ -69,6 +82,10 @@ class ProjectCreate(BaseModel):
     name: str
     description: Optional[str] = None
 
+class ProjectUpdate(BaseModel):
+    name: Optional[str] = None
+    description: Optional[str] = None
+    
 class ProjectMemberIn(BaseModel):
     user_id: UUID
 
@@ -90,30 +107,33 @@ class TaskCreate(TaskBase):
     assignee_id: UUID
 
 class TaskUpdate(BaseModel):
-    title: str
+    title: Optional[str] = None
     description: Optional[str] = None
-    status: Literal["todo", "in-progress", "done"]
-    priority: Literal["low", "medium", "high"]
-    due_date: datetime
-    assignee_id: UUID
+    status: Optional[Literal["todo", "in_progress", "done"]] = None
+    priority: Optional[Literal["low", "medium", "high"]] = None
+    due_date: Optional[datetime] = None
+    assignee_id: Optional[UUID] = None
 
 class TaskOut(TaskBase):
-    status: Literal["todo", "in-progress", "done"]
+    status: Literal["todo", "in_progress", "done"]
     assignee_id: UUID
-
-
     class Config:
         orm_mode = True
 
 
 #notification
 class NotificationOut(BaseModel):
+    id: UUID
     type: Literal['task_assigned','task_status_changed','task_comment_added','task_due_soon','task_overdue']
     title: str
     message: str
     is_read: Literal[False, True]
     user_id:  UUID
     task_id:  UUID
+    created_at: datetime
+    
+    class Config:
+        orm_mode = True
 
 
   

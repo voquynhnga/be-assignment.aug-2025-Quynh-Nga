@@ -5,8 +5,9 @@ from fastapi.security import HTTPAuthorizationCredentials
 from sqlalchemy.orm import Session
 
 from app.core.security import decode_token
-from app.models import User
+from app.models import User, Project
 from database import SessionLocal 
+from uuid import UUID
 
 
 bearer_scheme = HTTPBearer()
@@ -39,9 +40,17 @@ def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(bearer_
     return user
 
 
-def require_roles(*allowed_roles: str):
-    def role_checker(user: User = Depends(get_current_user)):
-        if user.role not in allowed_roles:
-            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Insufficient privileges")
-        return user
-    return role_checker
+def require_project_access(project_id: UUID, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    project = db.query(Project).filter(Project.id == project_id).first()
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found")
+    
+    if current_user.id not in [m.id for m in project.members]:
+        raise HTTPException(status_code=403, detail="Not authorized for this project")
+
+    if current_user.role in ["admin", "manager"]:
+        return current_user
+
+    return current_user
+
+
