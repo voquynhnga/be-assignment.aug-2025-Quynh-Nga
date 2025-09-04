@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, field_validator
 from uuid import UUID
 from typing import List, Optional, Literal
 from pydantic import EmailStr, constr
@@ -131,9 +131,51 @@ class NotificationOut(BaseModel):
     user_id:  UUID
     task_id:  UUID
     created_at: datetime
-    
+
     class Config:
         orm_mode = True
+
+
+#comment
+class TaskCommentBase(BaseModel):
+    content: str
+
+class TaskCommentCreate(TaskCommentBase):
+    @field_validator('content')
+    @classmethod
+    def validate_content(cls, v: str) -> str:
+        if not v or not v.strip():
+            raise ValueError('Comment content cannot be empty')
+        if len(v) > 2000:
+            raise ValueError('Comment content cannot exceed 2000 characters')
+        return v.strip()
+
+class TaskCommentOut(TaskCommentBase):
+    id: UUID
+    task_id: UUID
+    user_id: UUID
+    created_at: datetime
+    updated_at: datetime
+   
+    class Config:
+        from_attributes = True
+
+#attachment
+class TaskAttachmentOut(BaseModel):
+    id: UUID
+    filename: str
+    original_filename: str
+    file_path: str
+    file_size: int
+    content_type: str
+    task_id: UUID
+    upload_by: int
+    created_at: datetime
+    
+    upload_by: Optional[UUID] 
+    
+    class Config:
+        from_attributes = True
 
 
   

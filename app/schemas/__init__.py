@@ -1,4 +1,4 @@
-from .schemas import OrganizationOut, ProjectOut, ProjectCreate, TokenOut, RegisterIn, LoginIn, RefreshIn, ProjectMemberIn, ProjectMemberOut, UserOut, UserCreateByAdmin, TaskBase, TaskCreate, TaskOut, TaskUpdate, NotificationOut, OrganizationUpdate, ProjectUpdate, UserUpdate 
+from .schemas import OrganizationOut, ProjectOut, ProjectCreate, TokenOut, RegisterIn, LoginIn, RefreshIn, ProjectMemberIn, ProjectMemberOut, UserOut, UserCreateByAdmin, TaskBase, TaskCreate, TaskOut, TaskUpdate, NotificationOut, OrganizationUpdate, ProjectUpdate, UserUpdate, TaskCommentOut, TaskCommentCreate, TaskAttachmentOut 
 
 __all__ = [
     "TokenOut",
@@ -19,5 +19,8 @@ __all__ = [
     "NotificationOut",
     "OrganizationUpdate",
     "ProjectUpdate",
-    "UserUpdate"
+    "UserUpdate",
+    "TaskCommentOut",
+    "TaskCommentCreate",
+    "TaskAttachmentOut"
 ]

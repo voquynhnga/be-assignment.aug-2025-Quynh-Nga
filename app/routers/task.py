@@ -74,9 +74,9 @@ def get_task(
 ):
     
     task = db.query(Task).filter(Task.id == task_id).first()
-    require_project_access(task.project_id, db, current_user)
     if not task:
         raise HTTPException(status_code=404, detail="Task not found")
+    require_project_access(task.project_id, db, current_user)
     
     return task
 
@@ -91,9 +91,9 @@ def update_task(
 ):
     
     task = db.query(Task).filter(Task.id == task_id).first()
-    require_project_access(task.project_id, db, current_user)
     if not task:
         raise HTTPException(status_code=404, detail="Task not found")
+    require_project_access(task.project_id, db, current_user)
     
     if current_user.role not in ['admin', 'manager']:
         raise HTTPException(status_code=403, detail="Not authorized to update this task")
@@ -139,9 +139,9 @@ def delete_task(
 ):
     
     task = db.query(Task).filter(Task.id == task_id).first()
-    require_project_access(task.project_id, db, current_user)
     if not task:
         raise HTTPException(status_code=404, detail="Task not found")
+    require_project_access(task.project_id, db, current_user)
 
     if current_user.role not in ['admin', 'manager']:
         raise HTTPException(status_code=403, detail="Not authorized to delete this task")
