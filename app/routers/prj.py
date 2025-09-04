@@ -3,12 +3,14 @@ from sqlalchemy.orm import Session
 from typing import List
 from uuid import UUID
 
-from app.models import Project, User, Task
+from app.models import Project, User, Task, TaskStatus
 from app.schemas import ProjectOut, ProjectCreate, TaskOut
 from database import get_db
 from app.dependencies import get_current_user
 from sqlalchemy import func
-import datetime
+from datetime import timezone, datetime
+from sqlalchemy import exists
+from app.models import project_members
 
 router = APIRouter(
     prefix="/projects",
@@ -44,25 +46,27 @@ def create_project(
     db.refresh(new_project)
 
     # add creator as member
-    new_project.members.append(current_user)
+    user = db.merge(current_user)   
+    new_project.members.append(user)
     db.commit()
     return new_project
 
 
 # Get all projects of the current user
-@router.get("/", response_model=List[ProjectOut])
+@router.get("/")
 def get_projects(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    query = db.query(Project).filter(Project.organization_id == current_user.organization_id)
+    project_ids = db.query(Project.id).filter(
+        Project.organization_id == current_user.organization_id
+    )
 
     if current_user.role == "member":
-        # members only see projects they joined
-        query = query.join(Project.members).filter(User.id == current_user.id)
+        project_ids = project_ids.join(Project.members).filter(User.id == current_user.id)
 
-    projects = query.all()
-    return projects
+    return [pid for (pid,) in project_ids.all()]
+
 
 
 # Get project detail
@@ -205,9 +209,19 @@ def remove_member(
 
 #Count of tasks by status in a project
 @router.get("/{project_id}/report/status")
-def task_status_report(project_id: UUID, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
-    project = db.query(Project).filter(Project.id == project_id).first()
-    if not project or current_user not in project.members:
+def task_status_report(
+    project_id: UUID,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    is_member = db.query(
+        exists().where(
+            (project_members.c.project_id == project_id) &
+            (project_members.c.user_id == current_user.id)
+        )
+    ).scalar()
+
+    if not is_member:
         raise HTTPException(status_code=403, detail="Not authorized")
 
     result = (
@@ -220,11 +234,11 @@ def task_status_report(project_id: UUID, db: Session = Depends(get_db), current_
 
 #List of overdue tasks in a project
 @router.get("/{project_id}/report/overdue", response_model=List[TaskOut])
-def overdue_tasks(project_id: UUID, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
-    now = datetime.utcnow()
+def overdue_tasks(project_id: UUID, db: Session = Depends(get_db)):
+    now = datetime.now(timezone.utc)
     tasks = (
         db.query(Task)
-        .filter(Task.project_id == project_id, Task.due_date < now, Task.status != "done")
+        .filter(Task.project_id == project_id, Task.due_date < now, Task.status != 'done')
         .all()
     )
     return tasks

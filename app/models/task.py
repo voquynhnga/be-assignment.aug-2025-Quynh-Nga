@@ -3,6 +3,7 @@ from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.postgresql import UUID
 import enum
 import uuid
+from sqlalchemy import DateTime, func
 
 from .base import BaseModel
 
@@ -21,10 +22,13 @@ class Task(BaseModel):
     
     title = Column(String(255), nullable=False)
     description = Column(Text)
-    status = Column(Enum(TaskStatus), default=TaskStatus.TODO, nullable=False, index=True)
+    status = Column(
+        Enum(TaskStatus, name="taskstatus", values_callable=lambda obj: [e.value for e in obj]),
+        default=TaskStatus.TODO.value,
+        nullable=False,
+        )
     priority = Column(Enum(TaskPriority), default=TaskPriority.LOW, nullable=False)
-    due_date = Column(Date)
-    
+    due_date = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False)
     # Foreign Keys
     project_id = Column(Integer, ForeignKey("projects.id"), nullable=False, index=True)
     assignee_id = Column(Integer, ForeignKey("users.id"), nullable=True)
