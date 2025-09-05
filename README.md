@@ -1,34 +1,48 @@
-Database Diagram
+# 📌 Database Diagram
 
-https://drawsql.app/teams/dut-22/diagrams/be-assignment
+You can view the database schema here:
+👉 [Database Diagram](https://drawsql.app/teams/dut-22/diagrams/be-assignment)
 
-
-
-B1: Create & activate virtual environment
+# Set up 
+1. Create & Activate Virtual Environment
 python -m venv venv
-.\venv\Scripts\Activate.ps1      # Windows
 
-B2: Install dependencies
-# Run once
+Windows (PowerShell):
+.\venv\Scripts\Activate.ps1
+
+
+Linux / macOS:
+source venv/bin/activate
+
+2. Install Dependencies (run once)
+
+Upgrade pip and essential tools:
 python -m pip install --upgrade pip setuptools wheel
 
-# Run once
+
+Install project dependencies:
 pip install --upgrade --force-reinstall --only-binary :all: -r requirements.txt
 
-
-
-
-B3: Start Docker
+3. Start Docker
 docker-compose up
 
-B4: Run database migrations 
-# Run once
+4. Run Database Migrations & Seed Data
+
+Run migrations:
 alembic upgrade head
 
 
-Start the FastAPI server (for development with auto-reload):
+Seed initial data:
+python seed.py
 
+docker exec -it task_redis redis-cli -a redis123
+
+
+5. Start FastAPI Server (Development Mode)
+
+With auto-reload enabled:
 uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 
-B5: Open Swagger UI
-http://localhost:8000/docs
+6. Open API Documentation
+Once the server is running, visit:
+👉 [Localhost](http://localhost:8000/docs)

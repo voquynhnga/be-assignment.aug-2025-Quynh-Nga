@@ -24,8 +24,8 @@ router = APIRouter(
 UPLOAD_DIR = Path("uploads/task_attachments")
 UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
 
-# Maximum file size (10MB)
-MAX_FILE_SIZE = 10 * 1024 * 1024  # 10MB
+MAX_FILE_SIZE = 5 * 1024 * 1024  # 10MB
+NUMBER_ATTACHMENTS_LIMIT = 3
 
 # Allowed file types
 ALLOWED_EXTENSIONS = {
@@ -70,12 +70,13 @@ async def upload_attachment(
     if not task:
         raise HTTPException(status_code=404, detail="Task not found")
     require_project_access(task.project_id, db, current_user)
-    # Check if user has access to the project
-    # project = task.project
-    # if current_user.role not in ["admin", "manager"]:
-    #     member_ids = [m.id for m in project.members]
-    #     if current_user.id not in member_ids:
-    #         raise HTTPException(status_code=403, detail="Not authorized to upload to this task")
+   
+    existing_count = db.query(TaskAttachment).filter(TaskAttachment.task_id == task_id).count()
+    if existing_count > NUMBER_ATTACHMENTS_LIMIT:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Task already has {NUMBER_ATTACHMENTS_LIMIT} attachments. Cannot upload more."
+        )
     
     # Validate file
     validate_file(file)
@@ -84,7 +85,11 @@ async def upload_attachment(
     file_uuid = str(uuid.uuid4())
     file_ext = Path(file.filename).suffix if file.filename else ""
     unique_filename = f"{file_uuid}{file_ext}"
-    file_path = UPLOAD_DIR / unique_filename
+
+    task_folder = UPLOAD_DIR / str(task_id)
+    task_folder.mkdir(parents=True, exist_ok=True)
+
+    file_path = task_folder / unique_filename
     
     try:
         # Save file to disk

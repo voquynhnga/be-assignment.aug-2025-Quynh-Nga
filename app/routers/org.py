@@ -29,8 +29,11 @@ def update_organization(
     if not org:
         raise HTTPException(status_code=404, detail="Organization not found")
 
-    org.name = payload.name
-    org.description = payload.description
+    if payload.name:
+        org.name = payload.name
+
+    if payload.description:
+        org.description = payload.description
     db.commit()
     db.refresh(org)
 

@@ -121,8 +121,10 @@ def update_project(
     if existing:
         raise HTTPException(status_code=400, detail="Project name already exists in this organization")
 
-    project.name = payload.name
-    project.description = payload.description
+    if payload.name:
+        project.name = payload.name
+    if payload.description:
+        project.description = payload.description
     db.commit()
     db.refresh(project)
     return project
@@ -214,15 +216,6 @@ def task_status_report(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    # is_member = db.query(
-    #     exists().where(
-    #         (project_members.c.project_id == project_id) &
-    #         (project_members.c.user_id == current_user.id)
-    #     )
-    # ).scalar()
-
-    # if not is_member:
-    #     raise HTTPException(status_code=403, detail="Not authorized")
 
     require_project_access(project_id, db, current_user)    
 
@@ -240,7 +233,7 @@ def overdue_tasks(
     project_id: UUID,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)):
-    
+
     require_project_access(project_id, db, current_user)
 
     now = datetime.now(timezone.utc)

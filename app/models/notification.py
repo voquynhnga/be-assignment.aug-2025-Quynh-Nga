@@ -33,3 +33,11 @@ class Notification(BaseModel):
     
     def __str__(self):
         return f"<Notification: {self.title}>"
+    def as_dict(self):
+        return {
+            "id": str(self.id),
+            "user_id": str(self.user_id),
+            "message": self.message,
+            "is_read": self.is_read,
+            "created_at": self.created_at.isoformat()
+        }
