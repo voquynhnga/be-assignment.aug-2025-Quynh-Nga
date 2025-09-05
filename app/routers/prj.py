@@ -6,7 +6,7 @@ from uuid import UUID
 from app.models import Project, User, Task, TaskStatus
 from app.schemas import ProjectOut, ProjectCreate, TaskOut
 from database import get_db
-from app.dependencies import get_current_user
+from app.dependencies import get_current_user, require_project_access
 from sqlalchemy import func
 from datetime import timezone, datetime
 from sqlalchemy import exists
@@ -214,15 +214,17 @@ def task_status_report(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-    is_member = db.query(
-        exists().where(
-            (project_members.c.project_id == project_id) &
-            (project_members.c.user_id == current_user.id)
-        )
-    ).scalar()
+    # is_member = db.query(
+    #     exists().where(
+    #         (project_members.c.project_id == project_id) &
+    #         (project_members.c.user_id == current_user.id)
+    #     )
+    # ).scalar()
 
-    if not is_member:
-        raise HTTPException(status_code=403, detail="Not authorized")
+    # if not is_member:
+    #     raise HTTPException(status_code=403, detail="Not authorized")
+
+    require_project_access(project_id, db, current_user)    
 
     result = (
         db.query(Task.status, func.count(Task.id))
@@ -234,7 +236,13 @@ def task_status_report(
 
 #List of overdue tasks in a project
 @router.get("/{project_id}/report/overdue", response_model=List[TaskOut])
-def overdue_tasks(project_id: UUID, db: Session = Depends(get_db)):
+def overdue_tasks(
+    project_id: UUID,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)):
+    
+    require_project_access(project_id, db, current_user)
+
     now = datetime.now(timezone.utc)
     tasks = (
         db.query(Task)

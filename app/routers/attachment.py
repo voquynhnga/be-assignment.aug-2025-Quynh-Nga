@@ -118,7 +118,7 @@ async def upload_attachment(
         raise HTTPException(status_code=500, detail=f"Failed to upload file: {str(e)}")
 
 # Get all attachments for a task
-@router.get("/", response_model=List[TaskAttachmentOut])
+@router.get("/", response_model=List[UUID])
 def get_task_attachments(
     task_id: UUID,
     db: Session = Depends(get_db),
@@ -131,18 +131,13 @@ def get_task_attachments(
     
     # Check if user has access to the project
     require_project_access(task.project_id, db, current_user)
-    # project = task.project
 
-    # if current_user.role not in ["admin", "manager"]:
-    #     member_ids = [m.id for m in project.members]
-    #     if current_user.id not in member_ids:
-    #         raise HTTPException(status_code=403, detail="Not authorized to view attachments for this task")
-    
     attachments = db.query(TaskAttachment).filter(
         TaskAttachment.task_id == task_id
     ).order_by(TaskAttachment.created_at.desc()).all()
     
-    return attachments
+    return [a.id for a in attachments]
+
 
 # Get detail attachment 
 @router.get("/{attachment_id}", response_model=TaskAttachmentOut)

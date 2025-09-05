@@ -55,7 +55,7 @@ def create_comment(
             db,
             task_id,
             task.created_by,
-            f"New comment on task '{task.title}' by {current_user.name}"
+            f"New comment on task '{task.title}' by {current_user.full_name}"
         )
     
     return comment
@@ -74,6 +74,7 @@ def get_task_comments(
     
     # Check if user has access to the project
     require_project_access(task.project_id, db, current_user)
+
     comments = db.query(TaskComment).filter(
         TaskComment.task_id == task_id
     ).order_by(TaskComment.created_at.asc()).all()
@@ -85,10 +86,15 @@ def get_task_comments(
 def update_comment(
     task_id: UUID,
     comment_id: UUID,
-    payload: TaskCommentCreate,  # Reuse the same schema
+    payload: TaskCommentCreate,  
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
+    task=db.query(Task).filter(Task.id == task_id).first()
+    if not task:
+        raise HTTPException(status_code=404, detail="Task not found")
+    require_project_access(task.project_id, db, current_user)
+
     comment = db.query(TaskComment).filter(
         TaskComment.id == comment_id,
         TaskComment.task_id == task_id
@@ -115,6 +121,11 @@ def delete_comment(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
+    task=db.query(Task).filter(Task.id == task_id).first()
+    if not task:
+        raise HTTPException(status_code=404, detail="Task not found")
+    require_project_access(task.project_id, db, current_user)    
+
     comment = db.query(TaskComment).filter(
         TaskComment.id == comment_id,
         TaskComment.task_id == task_id
@@ -122,6 +133,8 @@ def delete_comment(
     
     if not comment:
         raise HTTPException(status_code=404, detail="Comment not found")
+    
+
     
     # Only the comment author or admin/manager can delete
     if comment.user_id != current_user.id and current_user.role not in ["admin", "manager"]:
